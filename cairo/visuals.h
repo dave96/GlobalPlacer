@@ -6,4 +6,6 @@
 
 void visuals_render(graph_t *graph, placement_t *place, int rows, int cols);
 
+void visuals_png(graph_t *graph, placement_t *place, int rows, int cols, const char *name);
+
 #endif // VISUALS_H

@@ -1,4 +1,5 @@
 #include "anneal.h"
+#include "cairo/visuals.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -33,6 +34,8 @@ double sa_cost(graph_t *g, int *x, int *y) {
 	return cost;
 }
 
+char buffer[1024];
+
 void simulated_annealing(graph_t *g, placement_t *p, int rows, int cols, sa_params_t params) {
 	srand(time(NULL));
 	double temp = params.initial_temperature;
@@ -52,6 +55,7 @@ void simulated_annealing(graph_t *g, placement_t *p, int rows, int cols, sa_para
 	double cost = sa_cost(g, x, y);
 	printf("Initial cost: %.2f\n", cost);
 
+	int steps = 0;
 	while(temp > params.minimum_temperature) {
 		for (int k = 0; k < params.kmax; ++k) {
 			// Select 1 element at random.
@@ -107,9 +111,22 @@ void simulated_annealing(graph_t *g, placement_t *p, int rows, int cols, sa_para
 		}
 
 		temp *= params.alpha;
+		steps++;
+
+		// if (steps % 10 == 0) {
+		// 	// Copy to the actual placement
+		// 	for (int i = 0; i < g->vertices; ++i) {
+		// 		p->coords[i] = x[i];
+		// 		p->coords[i + g->vertices] = y[i];
+		// 	}
+
+		// 	sprintf(buffer, "out/step_%05d.png", steps);
+		// 	visuals_png(g, p, rows, cols, buffer);
+		// }
 	}
 
 	printf("Final cost: %.2f\n", cost);
+	printf("Steps: %d\n", steps);
 	free(stencil);
 
 	// Copy to the actual placement
@@ -117,6 +134,8 @@ void simulated_annealing(graph_t *g, placement_t *p, int rows, int cols, sa_para
 		p->coords[i] = x[i];
 		p->coords[i + g->vertices] = y[i];
 	}
+
+	// visuals_png(g, p, rows, cols, "step_final.png");
 
 	free(x);
 	free(y);

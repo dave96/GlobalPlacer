@@ -140,3 +140,15 @@ void visuals_render(graph_t *graph, placement_t *place, int rows, int cols) {
 	// cairo_surface_write_to_png (surface, "hello.png");
 	cairo_close_x11_surface (surface);
 }
+
+void visuals_png(graph_t *graph, placement_t *place, int rows, int cols, const char *name) {
+	cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, PX_PER_POSITION * rows, PX_PER_POSITION * cols);
+	// cairo_surface_t *surface = cairo_create_x11_surface0(PX_PER_POSITION * rows, PX_PER_POSITION * cols);
+	cairo_t *cr = cairo_create(surface);
+
+	paint(cr, graph, place);
+
+	cairo_destroy(cr);
+	cairo_surface_write_to_png(surface, name);
+	cairo_surface_destroy(surface);
+}
