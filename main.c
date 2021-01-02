@@ -4,6 +4,7 @@
 #include "graph.h"
 #include "spectral/draw.h"
 #include "anneal.h"
+#include "cairo/visuals.h"
 
 void usage(const char *name) {
 	printf("Usage: %s <rows> <cols> <file>\n", name);
@@ -45,13 +46,6 @@ int main(int argc, char *argv[]) {
 	discretize_spectral(&place, rows, cols);
 	// Now we have a first placement which is supposedly "good"
 
-	for (int i = 0; i < 2; ++i) {
-		for (int j = 0; j < graph.vertices; ++j) {
-			printf("%.2f ", place.coords[i * graph.vertices + j]);
-		}
-		printf("\n");
-	}
-
 	// Configure simmulated annealing
 	sa_params_t params;
 	// Changes per temperature step
@@ -63,14 +57,11 @@ int main(int argc, char *argv[]) {
 	// Temperature gradient
 	params.alpha = 0.99;
 
+	visuals_render(&graph, &place, rows, cols);
+
 	simulated_annealing(&graph, &place, rows, cols, params);
 
-	for (int i = 0; i < 2; ++i) {
-		for (int j = 0; j < graph.vertices; ++j) {
-			printf("%.2f ", place.coords[i * graph.vertices + j]);
-		}
-		printf("\n");
-	}
+	visuals_render(&graph, &place, rows, cols);
 
 	free_placement(&place);
 	free_graph(&graph);
