@@ -9,7 +9,7 @@
 #define MAX_ITS 200
 #define TOLERANCE (1e-7)
 
-inline void initialize_eigen(double * u, int count) {
+void initialize_eigen(double * u, int count) {
 	double t = 0;
 
 	for (int i = 0; i < count; ++i) {
@@ -23,7 +23,7 @@ inline void initialize_eigen(double * u, int count) {
 		u[i] /= t;
 }
 
-inline double inner_term(graph_t *g, double *u_k, int node) {
+double inner_term(graph_t *g, double *u_k, int node) {
 	// Sort of a dot product
 	int *adj_i = &(g->laplacian[node * g->vertices]);
 	double deg = adj_i[node];
@@ -38,7 +38,7 @@ inline double inner_term(graph_t *g, double *u_k, int node) {
 	return res / deg;
 }
 
-inline double dot_product(double *a, double *b, int n) {
+double dot_product(double *a, double *b, int n) {
 	double r = 0;
 	for (int i = 0; i < n; ++i)
 		r += a[i] * b[i];
@@ -154,6 +154,8 @@ void bfs_stencil(int *stencil, int rows, int cols, int *x, int *y) {
 	q_push(&q, &initial);
 	VISITED(*x, *y) = 1;
 
+	int found = 0;
+
 	while (!q_empty(&q)) {
 		struct pos elem;
 		q_pop(&q, &elem);
@@ -161,6 +163,7 @@ void bfs_stencil(int *stencil, int rows, int cols, int *x, int *y) {
 		if (stencil[elem.x * cols + elem.y] == 0) {
 			*x = elem.x;
 			*y = elem.y;
+			found = 1;
 			break;
 		}
 
@@ -173,7 +176,7 @@ void bfs_stencil(int *stencil, int rows, int cols, int *x, int *y) {
 			VISITED(elem.x + 1, elem.y) = 1;
 		}
 
-		if (elem.x - 1 > 0 && !VISITED(elem.x - 1, elem.y)) {
+		if (elem.x - 1 >= 0 && !VISITED(elem.x - 1, elem.y)) {
 			elemq.x = elem.x - 1;
 			elemq.y = elem.y;
 			q_push(&q, &elemq);
@@ -187,7 +190,7 @@ void bfs_stencil(int *stencil, int rows, int cols, int *x, int *y) {
 			VISITED(elem.x, elem.y + 1) = 1;
 		}
 
-		if (elem.y - 1 > 0 && !VISITED(elem.x, elem.y - 1)) {
+		if (elem.y - 1 >= 0 && !VISITED(elem.x, elem.y - 1)) {
 			elemq.x = elem.x;
 			elemq.y = elem.y - 1;
 			q_push(&q, &elemq);
@@ -197,6 +200,8 @@ void bfs_stencil(int *stencil, int rows, int cols, int *x, int *y) {
 
 	#undef VISITED
 
+	assert(found);
+	free(visited);
 	q_destroy(&q);
 }
 
@@ -220,15 +225,20 @@ void discretize_spectral(placement_t *p, int rows, int cols) {
 		assert(x_d < rows);
 		assert(y_d < cols);
 
-		if (stencil[x_d * rows + y_d]) {
+		if (stencil[x_d * cols + y_d]) {
 			// Occupied slot, we have to find another one
 			bfs_stencil(stencil, rows, cols, &x_d, &y_d);
 		}
 
+		assert(stencil[x_d * cols + y_d] == 0);
 		stencil[x_d * cols + y_d] = 1;
 		p->coords[i] = x_d;
 		p->coords[i + p->vertices] = y_d;
 	}
 
 	free(stencil);
+}
+
+void free_placement(placement_t *p) {
+	free(p->coords);
 }

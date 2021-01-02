@@ -55,13 +55,22 @@ int main(int argc, char *argv[]) {
 	// Configure simmulated annealing
 	sa_params_t params;
 	// Changes per temperature step
-	params.kmax = 10;
+	params.kmax = 50;
 	// Initial temperature
-	params.initial_temperature = 500;
+	params.initial_temperature = 100;
+	// Final temperature
+	params.minimum_temperature = 0.001;
 	// Temperature gradient
-	params.alpha = 0.95;
+	params.alpha = 0.99;
 
 	simulated_annealing(&graph, &place, rows, cols, params);
+
+	for (int i = 0; i < 2; ++i) {
+		for (int j = 0; j < graph.vertices; ++j) {
+			printf("%.2f ", place.coords[i * graph.vertices + j]);
+		}
+		printf("\n");
+	}
 
 	free_placement(&place);
 	free_graph(&graph);

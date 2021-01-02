@@ -22,7 +22,7 @@ void read_graph(FILE *fp, graph_t *g)
 				// New edge
 				if (!g->laplacian) {
 					// First time we register an edge
-					g->laplacian = calloc(g->vertices, sizeof(int));
+					g->laplacian = calloc(g->vertices * g->vertices, sizeof(int));
 				}
 
 				int origin, destination;

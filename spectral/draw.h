@@ -15,8 +15,6 @@ placement_t spectral_draw(graph_t *g, int dims);
 
 void discretize_spectral(placement_t *p, int rows, int cols);
 
-inline void free_placement(placement_t *p) {
-	free(p->coords);
-}
+void free_placement(placement_t *p);
 
 #endif // DRAW_H
