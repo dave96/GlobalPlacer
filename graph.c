@@ -9,7 +9,7 @@ void read_graph(FILE *fp, graph_t *g)
 	char str[200];
 	g->vertices = 0;
 	g->laplacian = NULL;
-	
+
 	while(fgets(str, 200, fp)) {
 		if (!strcmp(str, "#\n")) {
 			// Change mode
@@ -22,7 +22,7 @@ void read_graph(FILE *fp, graph_t *g)
 				// New edge
 				if (!g->laplacian) {
 					// First time we register an edge
-					g->laplacian = calloc(g->vertices, sizeof(int));	
+					g->laplacian = calloc(g->vertices, sizeof(int));
 				}
 
 				int origin, destination;

@@ -2,6 +2,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include "graph.h"
+#include "spectral/draw.h"
+#include "anneal.h"
 
 void usage(const char *name) {
 	printf("Usage: %s <rows> <cols> <file>\n", name);
@@ -31,7 +33,37 @@ int main(int argc, char *argv[]) {
 	read_graph(fp, &graph);
 	fclose(fp);
 
-	print_laplacian(&graph);
+	if (graph.vertices > rows * cols) {
+		printf("Placement impossible, not enough slots in the matrix\n");
+		free_graph(&graph);
+		return 1;
+	}
+
+	// print_laplacian(&graph);
+
+	placement_t place = spectral_draw(&graph, 2);
+	discretize_spectral(&place, rows, cols);
+	// Now we have a first placement which is supposedly "good"
+
+	for (int i = 0; i < 2; ++i) {
+		for (int j = 0; j < graph.vertices; ++j) {
+			printf("%.2f ", place.coords[i * graph.vertices + j]);
+		}
+		printf("\n");
+	}
+
+	// Configure simmulated annealing
+	sa_params_t params;
+	// Changes per temperature step
+	params.kmax = 10;
+	// Initial temperature
+	params.initial_temperature = 500;
+	// Temperature gradient
+	params.alpha = 0.95;
+
+	simulated_annealing(&graph, &place, rows, cols, params);
+
+	free_placement(&place);
 	free_graph(&graph);
 
 	return 0;
