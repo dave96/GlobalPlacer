@@ -60,7 +60,7 @@ void paint(cairo_t *cr, graph_t *graph, placement_t *place) {
 
 	// Paint edges as lines
 	cairo_set_source_rgb(cr, 1, 0.25, 0.25);
-	cairo_set_line_width(cr, 1);
+	cairo_set_line_width(cr, .2);
 
 	for (int i = 0; i < graph->vertices; ++i) {
 		// Start from the vertex center
@@ -77,7 +77,7 @@ void paint(cairo_t *cr, graph_t *graph, placement_t *place) {
 				double jyc = ycoords[j] * PX_PER_POSITION + (PX_PER_POSITION / 2);
 
 				// Use a "manhattan" line
-				cairo_line_to(cr, jxc, ycenter);
+				// cairo_line_to(cr, jxc, ycenter);
 				cairo_line_to(cr, jxc, jyc);
 
 				// Stroke

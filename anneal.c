@@ -21,13 +21,40 @@ double sa_cost(graph_t *g, int *x, int *y) {
 	double cost = 0;
 	// Calculate the cost of a solution.
 
+	#pragma omp parallel for schedule(static, 16) reduction(+: cost)
 	for (int i = 0; i < g->vertices; ++i) {
 		// For each vertex, calculate the manhattan distance to all adjacent nodes.
 		// Only do so in the diagonal
 
 		for (int j = i + 1; j < g->vertices; ++j) {
-			if (g->laplacian[i * g->vertices + j] != 0)
-				cost += (abs(x[i] - x[j]) + abs(y[i] - y[j]));
+			cost += (abs(x[i] - x[j]) + abs(y[i] - y[j])) * abs(g->laplacian[i * g->vertices + j]);
+		}
+	}
+
+	return cost;
+}
+
+double sa_estimate_diff(graph_t *g, int *x, int *y, int elem, int x_rand, int y_rand, int old_elem, int old_x, int old_y) {
+	double cost = 0;
+	// Calculate the cost of a but just looking at the nodes that have changed.
+	// This is O(n) instead of O(n^2)
+
+	for (int i = 0; i < g->vertices; ++i) {
+		// Substract the old cost and add the new cost
+		if (i == elem)
+			continue;
+
+		// If i == the old element there is no change in cost
+		// If they did not have an edge, nothing changes
+		// Otherwise, we just swap them, distance is the same
+		if (i != old_elem) {
+			cost -= (abs(x[i] - old_x) + abs(y[i] - old_y)) * abs(g->laplacian[elem * g->vertices + i]);
+			cost += (abs(x[i] - x_rand) + abs(y[i] - y_rand)) * abs(g->laplacian[elem * g->vertices + i]);
+
+			if (old_elem != -1) {
+				cost -= (abs(x[i] - x_rand) + abs(y[i] - y_rand)) * abs(g->laplacian[old_elem * g->vertices + i]);
+				cost += (abs(x[i] - old_x) + abs(y[i] - old_y)) * abs(g->laplacian[old_elem * g->vertices + i]);
+			}
 		}
 	}
 
@@ -69,6 +96,23 @@ void simulated_annealing(graph_t *g, placement_t *p, int rows, int cols, sa_para
 			int old_x = x[elem];
 			int old_y = y[elem];
 
+			double diff = sa_estimate_diff(g, x, y, elem, x_rand, y_rand, old_elem, old_x, old_y);
+
+			if (diff < 0) {
+				// Keep
+				cost += diff;
+			} else {
+				// Between 0 and 1
+				double r = (double)rand() / (double)(RAND_MAX);
+
+				if (r < exp(-diff / temp)) {
+					cost += diff;
+				} else {
+					// Do not keep
+					continue;
+				}
+			}
+
 			// Swap
 			stencil[x_rand * cols + y_rand] = elem;
 			x[elem] = x_rand;
@@ -79,35 +123,6 @@ void simulated_annealing(graph_t *g, placement_t *p, int rows, int cols, sa_para
 				x[old_elem] = old_x;
 				y[old_elem] = old_y;
 			}
-
-			// Evaluate
-			double newcost = sa_cost(g, x, y);
-			double difference = newcost - cost;
-
-			if (difference < 0) {
-				// Keep
-				cost = newcost;
-				continue;
-			} else {
-				// Between 0 and 1
-				double r = (double)rand() / (double)(RAND_MAX);
-
-				if (r < exp(-difference / temp)) {
-					cost = newcost;
-					continue;
-				}
-			}
-
-			// Reset
-			stencil[old_x * cols + old_y] = elem;
-			if (old_elem != -1) {
-				x[old_elem] = x_rand;
-				y[old_elem] = y_rand;
-			}
-
-			stencil[x_rand * cols + y_rand] = old_elem;
-			x[elem] = old_x;
-			y[elem] = old_y;
 		}
 
 		temp *= params.alpha;

@@ -49,13 +49,13 @@ int main(int argc, char *argv[]) {
 	// Configure simmulated annealing
 	sa_params_t params;
 	// Changes per temperature step
-	params.kmax = 50;
+	params.kmax = graph.vertices * 6;
 	// Initial temperature
-	params.initial_temperature = 100;
+	params.initial_temperature = graph.vertices * 2;
 	// Final temperature
 	params.minimum_temperature = 0.001;
 	// Temperature gradient
-	params.alpha = 0.99;
+	params.alpha = 0.98;
 
 	visuals_render(&graph, &place, rows, cols);
 

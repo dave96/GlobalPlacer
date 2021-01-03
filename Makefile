@@ -1,4 +1,4 @@
-CFLAGS=-O3 -g -Wall -Wpedantic `pkg-config --cflags cairo x11`
+CFLAGS=-O3 -g -Wall -Wpedantic `pkg-config --cflags cairo x11` -fopenmp
 CFLAGS_DEBUG=-O0 -g -Wall -Wpedantic -fsanitize=address `pkg-config --cflags cairo x11`
 LIBS=-lm `pkg-config --libs cairo x11`
 CC=gcc
@@ -15,4 +15,4 @@ placer_dbg: spectral/draw.o spectral/queue.o graph.o main.o anneal.o cairo/visua
 	$(CC) $(CFLAGS) -c -o $@ $^
 
 clean:
-	rm -rf *.o placer spectral/*.o
+	rm -rf *.o placer spectral/*.o cairo/*.o
