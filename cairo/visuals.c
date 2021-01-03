@@ -60,7 +60,7 @@ void paint(cairo_t *cr, graph_t *graph, placement_t *place) {
 
 	// Paint edges as lines
 	cairo_set_source_rgb(cr, 1, 0.25, 0.25);
-	cairo_set_line_width(cr, .2);
+	cairo_set_line_width(cr, .3);
 
 	for (int i = 0; i < graph->vertices; ++i) {
 		// Start from the vertex center
