@@ -133,7 +133,7 @@ void visuals_render(graph_t *graph, placement_t *place, int rows, int cols) {
 
 	int k;
 	while ((k = cairo_check_event(surface, 1, cr, graph, place)) != 65307) {
-		printf("%d\n", k);
+		// printf("%d\n", k);
 	}
 
 	cairo_destroy (cr);

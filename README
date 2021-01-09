@@ -1,0 +1,50 @@
+Global Placer is a global placement implementation
+in C using Spectral Layout and Simulated Annealing.
+
+The prerequisites to build the program are the following:
+ - Any C compiler (GCC or clang preferably)
+ - x11
+	- On Debian/Ubuntu you will need to install the development version
+	  of the x11 client-side library: libx11-dev
+ - Cairo
+	- On Debian/Ubuntu you will need to install the development version
+	  of the Cairo library: libcairo2-dev
+ - pkg-config
+
+Then, to build the program:
+$ make
+
+EXECUTION
+----------
+
+To execute the program, one has to select the rows and columns of the
+target matrix to place the blocks, and input a graph in TGF (Trivial
+Graph Format) which will be placed. For example three sample datasets
+are provided:
+
+A randomly generated 1000-node graph with a single node that is connected
+to every other node (a CLK for example).
+$ ./placer 40 40 dataset/full.tgf
+
+A randomly generated 1000-node graph that has two distinct disconnected
+components
+$ ./placer 40 40 dataset/noclk.tgf
+
+A basic sample graph with few nodes which can showcase the efectiveness
+of the spectral layout placement
+$ ./placer 10 10 dataset/basic.tgf
+
+HOW TO USE
+-----------
+
+Upon execution, the program will compute the Spectral Layout and display install
+in a window. Then, if you press [Esc], it will continue by computing the Simulated
+Annealing. If you close the window, the program will stop instead.
+
+After the Simulated Annealing result is displayed, on the console there will be three lines:
+ - The cost after the spectral layout (on wirelength of the placement)
+ - The cost after the simulated Annealing
+ - The number of annealing steps that were done
+
+So, the usual workflow is:
+Execute > See spectral layout > [Esc] > See simulated annealing > [Esc]
